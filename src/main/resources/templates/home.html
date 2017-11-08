@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{site.app_name}">Home</title>
+    <link href="/jslib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/jslib/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
+
+    <link href="/jslib/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="/jslib/toastr/toastr.min.css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div ng-app="client" ng-controller="clientController">
+
+    <input class="form-control" type = "file" product-excel-upload ng-model="productExcel"/>
+    <button ng-click="uploadExcel()">Upload Excel</button>
+
+    <br />
+    <hr />
+
+    <input class="form-control" type = "file" product-csv-upload ng-model="productCsv"/>
+    <button ng-click="uploadCsv()">Upload CSV</button>
+
+</div>
+
+<script src="/webjars/sockjs-client/0.3.4/sockjs.min.js"></script>
+
+
+<script src="/jslib/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="/jslib/toastr/toastr.min.js" type="text/javascript"></script>
+
+<script src="/js/client-module.js" type="text/javascript"></script>
+<script src="/js/message-service.js" type="text/javascript"></script>
+<script src="/js/socket-service.js" type="text/javascript"></script>
+<script src="/js/client-controller.js" type="text/javascript"></script>
+
+</body>
+</html>
