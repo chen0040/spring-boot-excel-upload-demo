@@ -23,7 +23,7 @@
                 return;
             }
 
-            productExcel = img;
+            productExcel = obj;
             productExcelType = fileExtension;
 
         };
@@ -75,7 +75,7 @@
                 return;
             }
 
-            productCsv = img;
+            productCsv = obj;
             productCsvType = fileExtension;
 
         };
@@ -122,11 +122,11 @@
     var module = angular.module('client');
     module.factory('uploadService', ['$http', '$log', service]);
 
-    module.directive('productExcelUpload', ['uploadService', function (productMediaService) {
+    module.directive('productExcelUpload', ['uploadService', function (uploadService) {
         return {
             restrict: 'A',
             scope : {
-                productImage : "=ngModel"
+                productDataSet : "=ngModel"
             },
             link: function (scope, element, attr) {
 
@@ -139,11 +139,11 @@
     }]);
     
 
-    module.directive('productCsvUpload', ['uploadService', function (productMediaService) {
+    module.directive('productCsvUpload', ['uploadService', function (uploadService) {
         return {
             restrict: 'A',
             scope : {
-                productImage : "=ngModel"
+                productDataSet : "=ngModel"
             },
             link: function (scope, element, attr) {
 

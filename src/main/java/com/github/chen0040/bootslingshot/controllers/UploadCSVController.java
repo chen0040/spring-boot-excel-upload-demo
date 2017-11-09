@@ -3,7 +3,9 @@ package com.github.chen0040.bootslingshot.controllers;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.github.chen0040.bootslingshot.services.ProductApi;
 import com.github.chen0040.bootslingshot.viewmodels.Product;
+import com.github.chen0040.bootslingshot.viewmodels.UploadEvent;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.slf4j.Logger;
@@ -24,27 +26,28 @@ import java.util.concurrent.Executors;
  * Created by xschen on 8/11/2017.
  */
 @Controller
-public class UploadController {
+public class UploadCsvController {
 
    private ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(10));
 
-   private static final Logger logger = LoggerFactory.getLogger(UploadController.class);
+   private static final Logger logger = LoggerFactory.getLogger(UploadCsvController.class);
 
-   private List<Product> products = new ArrayList<>();
+   @Autowired
+   private ProductApi productApi;
 
    @Autowired
    private SimpMessagingTemplate brokerMessagingTemplate;
 
-   @RequestMapping(value="/erp/get-products", method = RequestMethod.GET)
-   public @ResponseBody List<Product> getProducts() {
-      return products;
+   private String getVendor(String token) {
+      return "vendor";
    }
 
    @RequestMapping(value = "/erp/upload-csv", method = RequestMethod.POST)
-   public @ResponseBody Map<String, Object> uploadProductImage(@PathVariable("sku") String sku,
+   public @ResponseBody Map<String, Object> uploadProductCsv(
            @RequestParam("file") MultipartFile file,
            @RequestParam("token") String token)
            throws ServletException, IOException {
+      logger.info("upload-csv invoked.");
 
       Map<String, Object> result = new HashMap<>();
 
@@ -66,8 +69,15 @@ public class UploadController {
 
          logger.info("image bytes received: {}", bytes.length);
 
+
+
          executor.submit(() -> {
             try {
+               UploadEvent event = new UploadEvent();
+               event.setState("Uploaded filed received on server");
+               event.setEventType("start");
+               brokerMessagingTemplate.convertAndSend("/topics/event", JSON.toJSONString(event, SerializerFeature.BrowserCompatible));
+
                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filepath)));
                String line;
                boolean firstLine = true;
@@ -92,15 +102,25 @@ public class UploadController {
                   product.getAttributes().put("width", width);
                   product.getAttributes().put("height", height);
                   product.getAttributes().put("description", description);
+                  product.setVendor(getVendor(token));
 
-                  brokerMessagingTemplate.convertAndSend("/topics/event", JSON.toJSONString(product, SerializerFeature.BrowserCompatible));
+                  logger.info("Saving product: {}", product.getName());
+                  productApi.saveProduct(product);
 
-                  products.add(product);
+                  event = new UploadEvent();
+                  event.setState(product);
+                  event.setEventType("progress");
+                  brokerMessagingTemplate.convertAndSend("/topics/event", JSON.toJSONString(event, SerializerFeature.BrowserCompatible));
 
-                  Thread.sleep(1000L);
+                  Thread.sleep(5000L);
 
                }
 
+               event = new UploadEvent();
+               event.setState("Uploaded filed deleted on server");
+               fh.delete();
+               event.setEventType("end");
+               brokerMessagingTemplate.convertAndSend("/topics/event", JSON.toJSONString(event, SerializerFeature.BrowserCompatible));
 
             }catch(Exception ex) {
                logger.error("Failed on saving product", ex);

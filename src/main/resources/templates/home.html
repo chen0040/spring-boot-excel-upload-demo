@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="#{site.app_name}">Home</title>
+    <title>Upload Demo</title>
     <link href="/jslib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link href="/jslib/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
 
@@ -13,25 +13,48 @@
 
 <div ng-app="client" ng-controller="clientController">
 
+    <h1>Products On Servers</h1>
+    <p>There are <b>{{products.length}} products</b> on Server.</p>
+    <br />
+    <hr />
+
+    <h1>Demo for Excel Upload</h1>
+
     <input class="form-control" type = "file" product-excel-upload ng-model="productExcel"/>
-    <button ng-click="uploadExcel()">Upload Excel</button>
+    <button ng-click="uploadProductExcel()">Upload Excel</button>
 
     <br />
     <hr />
 
+    <h1>Demo for CSV Upload</h1>
+
+    <a href="/samples/products.csv" target="_blank">CSV Sample Download</a>
+
+    <hr />
+
     <input class="form-control" type = "file" product-csv-upload ng-model="productCsv"/>
-    <button ng-click="uploadCsv()">Upload CSV</button>
+    <button ng-click="uploadProductCsv()">Upload CSV</button>
 
 </div>
 
 <script src="/webjars/sockjs-client/0.3.4/sockjs.min.js"></script>
 
-
+<script src="/jslib/jquery/jquery.min.js" type="text/javascript"></script>
 <script src="/jslib/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+<script src="/jslib/angular/angular.min.js" type="text/javascript"></script>
+<script src="/jslib/angular-route/angular-route.min.js" type="text/javascript"></script>
+<script src="/jslib/angular-ui-bootstrap/ui-bootstrap.js" type="text/javascript"></script>
+<script src="/jslib/angular-ui-bootstrap/ui-bootstrap-tpls.js" type="text/javascript"></script>
+<script src="/jslib/angular-sanitize/angular-sanitize.min.js" type="text/javascript"></script>
+
 <script src="/jslib/toastr/toastr.min.js" type="text/javascript"></script>
+<script src="/jslib/stompjs/stomp.js" type="text/javascript"></script>
 
 <script src="/js/client-module.js" type="text/javascript"></script>
 <script src="/js/message-service.js" type="text/javascript"></script>
+<script src="/js/upload-service.js" type="text/javascript"></script>
+<script src="/js/product-service.js" type="text/javascript"></script>
 <script src="/js/socket-service.js" type="text/javascript"></script>
 <script src="/js/client-controller.js" type="text/javascript"></script>
 

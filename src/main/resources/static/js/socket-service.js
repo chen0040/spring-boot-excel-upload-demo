@@ -5,7 +5,7 @@
         var socket = null;
         var connected = false;
         var thisCallback = null;
-        var thisUrl = "/wh";
+        var thisUrl = "/erp";
         var thisIntervalHandler = null;
         var thisCounter = 0;
 
