@@ -4,6 +4,9 @@ package com.github.chen0040.bootslingshot.controllers;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.chen0040.bootslingshot.services.ProductApi;
+import com.github.chen0040.bootslingshot.utils.DataRow;
+import com.github.chen0040.bootslingshot.utils.DataTable;
+import com.github.chen0040.bootslingshot.utils.ExcelTable;
 import com.github.chen0040.bootslingshot.viewmodels.Product;
 import com.github.chen0040.bootslingshot.viewmodels.UploadEvent;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -64,8 +67,6 @@ public class UploadExcelController {
          fh.mkdir();
       }
 
-
-
       try {
 
          FileOutputStream writer = new FileOutputStream(filepath);
@@ -83,21 +84,20 @@ public class UploadExcelController {
                event.setEventType("start");
                brokerMessagingTemplate.convertAndSend("/topics/event", JSON.toJSONString(event, SerializerFeature.BrowserCompatible));
 
-               BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filepath)));
-               String line;
-               boolean firstLine = true;
-               while((line = reader.readLine()) != null) {
-                  if(firstLine) {
-                     firstLine = false;
-                     continue;
-                  }
-                  String[] parts = line.split(",");
-                  String name = parts[0];
-                  String price = parts[1];
-                  String weight = parts[2];
-                  String width = parts[3];
-                  String height = parts[4];
-                  String description = parts[5];
+               final FileInputStream inputStream = new FileInputStream(filepath);
+               DataTable table = ExcelTable.load(() -> inputStream);
+
+               int rowCount = table.rowCount();
+
+               for(int i=0; i < rowCount; ++i) {
+                  DataRow row = table.row(i);
+
+                  String name = row.cell("name");
+                  String price = row.cell("price");
+                  String weight = row.cell("weight");
+                  String width = row.cell("width");
+                  String height = row.cell("height");
+                  String description = row.cell("description");
 
                   Product product = new Product();
                   product.setName(name);
@@ -118,8 +118,8 @@ public class UploadExcelController {
                   brokerMessagingTemplate.convertAndSend("/topics/event", JSON.toJSONString(event, SerializerFeature.BrowserCompatible));
 
                   Thread.sleep(5000L);
-
                }
+
 
                event = new UploadEvent();
                event.setState("Uploaded filed deleted on server");
